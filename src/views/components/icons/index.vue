@@ -11,7 +11,7 @@
             <div slot="content">
               {{ generateIconCode(item) }}
             </div>
-            <div class="icon-item" key="">
+            <div class="icon-item">
               <svg-icon :icon-class="item" class-name="disabled" />
               <span>{{ item }}</span>
             </div>
