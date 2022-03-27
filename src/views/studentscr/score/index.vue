@@ -1,34 +1,34 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="姓名" prop="stName">
+      <el-form-item label="学生名" prop="stName">
         <el-input
           v-model="queryParams.stName"
-          placeholder="请输入姓名"
+          placeholder="请输入学生名"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="联系方式" prop="stCall">
+      <el-form-item label="课程" prop="stCourse">
         <el-input
-          v-model="queryParams.stCall"
-          placeholder="请输入联系方式"
+          v-model="queryParams.stCourse"
+          placeholder="请输入课程"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="班级" prop="stClass">
+      <el-form-item label="成绩" prop="stGrade">
         <el-input
-          v-model="queryParams.stClass"
-          placeholder="请输入班级"
+          v-model="queryParams.stGrade"
+          placeholder="请输入成绩"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="专业" prop="stZy">
+      <el-form-item label="批复" prop="stText">
         <el-input
-          v-model="queryParams.stZy"
-          placeholder="请输入专业"
+          v-model="queryParams.stText"
+          placeholder="请输入批复"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -47,7 +47,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['student:inf:add']"
+          v-hasPermi="['studentscr:score:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +58,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['student:inf:edit']"
+          v-hasPermi="['studentscr:score:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -69,7 +69,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['student:inf:remove']"
+          v-hasPermi="['studentscr:score:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -79,20 +79,20 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['student:inf:export']"
+          v-hasPermi="['studentscr:score:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="infList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="scoreList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="学号" align="center" prop="stId" />
-      <el-table-column label="姓名" align="center" prop="stName" />
-      <el-table-column label="性别" align="center" prop="stSex" />
-      <el-table-column label="联系方式" align="center" prop="stCall" />
-      <el-table-column label="班级" align="center" prop="stClass" />
-      <el-table-column label="专业" align="center" prop="stZy" />
+      <el-table-column label="学生名" align="center" prop="stName" />
+      <el-table-column label="课程编号" align="center" prop="stCuid" />
+      <el-table-column label="课程" align="center" prop="stCourse" />
+      <el-table-column label="成绩" align="center" prop="stGrade" />
+      <el-table-column label="批复" align="center" prop="stText" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -100,14 +100,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['student:inf:edit']"
+            v-hasPermi="['studentscr:score:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['student:inf:remove']"
+            v-hasPermi="['studentscr:score:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -121,20 +121,20 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改学生信息对话框 -->
+    <!-- 添加或修改学生成绩对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="姓名" prop="stName">
-          <el-input v-model="form.stName" placeholder="请输入姓名" />
+        <el-form-item label="学生名" prop="stName">
+          <el-input v-model="form.stName" placeholder="请输入学生名" />
         </el-form-item>
-        <el-form-item label="联系方式" prop="stCall">
-          <el-input v-model="form.stCall" placeholder="请输入联系方式" />
+        <el-form-item label="课程" prop="stCourse">
+          <el-input v-model="form.stCourse" placeholder="请输入课程" />
         </el-form-item>
-        <el-form-item label="班级" prop="stClass">
-          <el-input v-model="form.stClass" placeholder="请输入班级" />
+        <el-form-item label="成绩" prop="stGrade">
+          <el-input v-model="form.stGrade" placeholder="请输入成绩" />
         </el-form-item>
-        <el-form-item label="专业" prop="stZy">
-          <el-input v-model="form.stZy" placeholder="请输入专业" />
+        <el-form-item label="批复" prop="stText">
+          <el-input v-model="form.stText" placeholder="请输入批复" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -146,10 +146,10 @@
 </template>
 
 <script>
-import { listInf, getInf, delInf, addInf, updateInf } from "@/api/student/inf";
+import { listScore, getScore, delScore, addScore, updateScore } from "@/api/studentscr/score";
 
 export default {
-  name: "Inf",
+  name: "Score",
   data() {
     return {
       // 遮罩层
@@ -164,8 +164,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 学生信息表格数据
-      infList: [],
+      // 学生成绩表格数据
+      scoreList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -175,10 +175,9 @@ export default {
         pageNum: 1,
         pageSize: 10,
         stName: null,
-        stSex: null,
-        stCall: null,
-        stClass: null,
-        stZy: null
+        stCourse: null,
+        stGrade: null,
+        stText: null
       },
       // 表单参数
       form: {},
@@ -191,11 +190,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询学生信息列表 */
+    /** 查询学生成绩列表 */
     getList() {
       this.loading = true;
-      listInf(this.queryParams).then(response => {
-        this.infList = response.rows;
+      listScore(this.queryParams).then(response => {
+        this.scoreList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -210,10 +209,10 @@ export default {
       this.form = {
         stId: null,
         stName: null,
-        stSex: null,
-        stCall: null,
-        stClass: null,
-        stZy: null
+        stCuid: null,
+        stCourse: null,
+        stGrade: null,
+        stText: null
       };
       this.resetForm("form");
     },
@@ -237,16 +236,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加学生信息";
+      this.title = "添加学生成绩";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const stId = row.stId || this.ids
-      getInf(stId).then(response => {
+      getScore(stId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改学生信息";
+        this.title = "修改学生成绩";
       });
     },
     /** 提交按钮 */
@@ -254,13 +253,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.stId != null) {
-            updateInf(this.form).then(response => {
+            updateScore(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addInf(this.form).then(response => {
+            addScore(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -272,8 +271,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const stIds = row.stId || this.ids;
-      this.$modal.confirm('是否确认删除学生信息编号为"' + stIds + '"的数据项？').then(function() {
-        return delInf(stIds);
+      this.$modal.confirm('是否确认删除学生成绩编号为"' + stIds + '"的数据项？').then(function() {
+        return delScore(stIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -281,9 +280,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('student/inf/export', {
+      this.download('studentscr/score/export', {
         ...this.queryParams
-      }, `inf_${new Date().getTime()}.xlsx`)
+      }, `score_${new Date().getTime()}.xlsx`)
     }
   }
 };

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询选修课程列表
 export function listSelect(query) {
   return request({
-    url: '/courseselect/select/list',
+    url: '/selectclass/select/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function listSelect(query) {
 // 查询选修课程详细
 export function getSelect(cuId) {
   return request({
-    url: '/courseselect/select/' + cuId,
+    url: '/selectclass/select/' + cuId,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getSelect(cuId) {
 // 新增选修课程
 export function addSelect(data) {
   return request({
-    url: '/courseselect/select',
+    url: '/selectclass/select',
     method: 'post',
     data: data
   })
@@ -29,7 +29,7 @@ export function addSelect(data) {
 // 修改选修课程
 export function updateSelect(data) {
   return request({
-    url: '/courseselect/select',
+    url: '/selectclass/select',
     method: 'put',
     data: data
   })
@@ -38,7 +38,7 @@ export function updateSelect(data) {
 // 删除选修课程
 export function delSelect(cuId) {
   return request({
-    url: '/courseselect/select/' + cuId,
+    url: '/selectclass/select/' + cuId,
     method: 'delete'
   })
 }

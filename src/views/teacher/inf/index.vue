@@ -1,26 +1,50 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="课程名" prop="cuName">
+      <el-form-item label="姓名" prop="teaName">
         <el-input
-          v-model="queryParams.cuName"
-          placeholder="请输入课程名"
+          v-model="queryParams.teaName"
+          placeholder="请输入姓名"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="授课老师" prop="cuTeacher">
+      <el-form-item label="联系方式" prop="teaCall">
         <el-input
-          v-model="queryParams.cuTeacher"
-          placeholder="请输入授课老师"
+          v-model="queryParams.teaCall"
+          placeholder="请输入联系方式"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="授课教室" prop="cuRoom">
+      <el-form-item label="教授学科" prop="teaSubject">
         <el-input
-          v-model="queryParams.cuRoom"
-          placeholder="请输入授课教室"
+          v-model="queryParams.teaSubject"
+          placeholder="请输入教授学科"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="教授班级" prop="teaCid">
+        <el-input
+          v-model="queryParams.teaCid"
+          placeholder="请输入教授班级"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="教授专业" prop="teaClass">
+        <el-input
+          v-model="queryParams.teaClass"
+          placeholder="请输入教授专业"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="所属学院" prop="teaXueyuan">
+        <el-input
+          v-model="queryParams.teaXueyuan"
+          placeholder="请输入所属学院"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -39,7 +63,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['course:cur:add']"
+          v-hasPermi="['teacher:inf:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -50,7 +74,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['course:cur:edit']"
+          v-hasPermi="['teacher:inf:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -61,7 +85,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['course:cur:remove']"
+          v-hasPermi="['teacher:inf:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -71,19 +95,27 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['course:cur:export']"
+          v-hasPermi="['teacher:inf:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="curList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="infList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="课程号" align="center" prop="cuId" />
-      <el-table-column label="课程名" align="center" prop="cuName" />
-      <el-table-column label="教师编号" align="center" prop="cuTid" />
-      <el-table-column label="授课老师" align="center" prop="cuTeacher" />
-      <el-table-column label="授课教室" align="center" prop="cuRoom" />
+      <el-table-column label="工号" align="center" prop="teaId" />
+      <el-table-column label="姓名" align="center" prop="teaName" />
+      <el-table-column label="联系方式" align="center" prop="teaCall" />
+      <el-table-column label="学科编号" align="center" prop="teaCouid" />
+      <el-table-column label="教授学科" align="center" prop="teaSubject" />
+      <el-table-column label="教授班级" align="center" prop="teaCid" />
+      <el-table-column label="教授专业" align="center" prop="teaClass" />
+      <el-table-column label="所属学院" align="center" prop="teaXueyuan" />
+      <el-table-column label="教师图片" align="center" prop="teaImage" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.teaImage" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -91,14 +123,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['course:cur:edit']"
+            v-hasPermi="['teacher:inf:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['course:cur:remove']"
+            v-hasPermi="['teacher:inf:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -112,17 +144,29 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改课程信息对话框 -->
+    <!-- 添加或修改老师信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="课程名" prop="cuName">
-          <el-input v-model="form.cuName" placeholder="请输入课程名" />
+        <el-form-item label="姓名" prop="teaName">
+          <el-input v-model="form.teaName" placeholder="请输入姓名" />
         </el-form-item>
-        <el-form-item label="授课老师" prop="cuTeacher">
-          <el-input v-model="form.cuTeacher" placeholder="请输入授课老师" />
+        <el-form-item label="联系方式" prop="teaCall">
+          <el-input v-model="form.teaCall" placeholder="请输入联系方式" />
         </el-form-item>
-        <el-form-item label="授课教室" prop="cuRoom">
-          <el-input v-model="form.cuRoom" placeholder="请输入授课教室" />
+        <el-form-item label="教授学科" prop="teaSubject">
+          <el-input v-model="form.teaSubject" placeholder="请输入教授学科" />
+        </el-form-item>
+        <el-form-item label="教授班级" prop="teaCid">
+          <el-input v-model="form.teaCid" placeholder="请输入教授班级" />
+        </el-form-item>
+        <el-form-item label="教授专业" prop="teaClass">
+          <el-input v-model="form.teaClass" placeholder="请输入教授专业" />
+        </el-form-item>
+        <el-form-item label="所属学院" prop="teaXueyuan">
+          <el-input v-model="form.teaXueyuan" placeholder="请输入所属学院" />
+        </el-form-item>
+        <el-form-item label="教师图片">
+          <image-upload v-model="form.teaImage"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -134,10 +178,10 @@
 </template>
 
 <script>
-import { listCur, getCur, delCur, addCur, updateCur } from "@/api/course/cur";
+import { listInf, getInf, delInf, addInf, updateInf } from "@/api/teacher/inf";
 
 export default {
-  name: "Cur",
+  name: "Inf",
   data() {
     return {
       // 遮罩层
@@ -152,8 +196,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 课程信息表格数据
-      curList: [],
+      // 老师信息表格数据
+      infList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -162,9 +206,13 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        cuName: null,
-        cuTeacher: null,
-        cuRoom: null
+        teaName: null,
+        teaCall: null,
+        teaSubject: null,
+        teaCid: null,
+        teaClass: null,
+        teaXueyuan: null,
+        teaImage: null
       },
       // 表单参数
       form: {},
@@ -177,11 +225,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询课程信息列表 */
+    /** 查询老师信息列表 */
     getList() {
       this.loading = true;
-      listCur(this.queryParams).then(response => {
-        this.curList = response.rows;
+      listInf(this.queryParams).then(response => {
+        this.infList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -194,11 +242,15 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        cuId: null,
-        cuName: null,
-        cuTid: null,
-        cuTeacher: null,
-        cuRoom: null
+        teaId: null,
+        teaName: null,
+        teaCall: null,
+        teaCouid: null,
+        teaSubject: null,
+        teaCid: null,
+        teaClass: null,
+        teaXueyuan: null,
+        teaImage: null
       };
       this.resetForm("form");
     },
@@ -214,7 +266,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.cuId)
+      this.ids = selection.map(item => item.teaId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -222,30 +274,30 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加课程信息";
+      this.title = "添加老师信息";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const cuId = row.cuId || this.ids
-      getCur(cuId).then(response => {
+      const teaId = row.teaId || this.ids
+      getInf(teaId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改课程信息";
+        this.title = "修改老师信息";
       });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.cuId != null) {
-            updateCur(this.form).then(response => {
+          if (this.form.teaId != null) {
+            updateInf(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addCur(this.form).then(response => {
+            addInf(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -256,9 +308,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const cuIds = row.cuId || this.ids;
-      this.$modal.confirm('是否确认删除课程信息编号为"' + cuIds + '"的数据项？').then(function() {
-        return delCur(cuIds);
+      const teaIds = row.teaId || this.ids;
+      this.$modal.confirm('是否确认删除老师信息编号为"' + teaIds + '"的数据项？').then(function() {
+        return delInf(teaIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -266,9 +318,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('course/cur/export', {
+      this.download('teacher/inf/export', {
         ...this.queryParams
-      }, `cur_${new Date().getTime()}.xlsx`)
+      }, `inf_${new Date().getTime()}.xlsx`)
     }
   }
 };

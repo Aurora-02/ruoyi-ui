@@ -1,42 +1,18 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="课程名" prop="cuName">
+      <el-form-item label="专业名称" prop="claName">
         <el-input
-          v-model="queryParams.cuName"
-          placeholder="请输入课程名"
+          v-model="queryParams.claName"
+          placeholder="请输入专业名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="授课教室" prop="cuRoom">
+      <el-form-item label="所属学院" prop="claXueyuan">
         <el-input
-          v-model="queryParams.cuRoom"
-          placeholder="请输入授课教室"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="上课时间" prop="cuTime">
-        <el-date-picker clearable
-          v-model="queryParams.cuTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择上课时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="授课老师" prop="cuTeacher">
-        <el-input
-          v-model="queryParams.cuTeacher"
-          placeholder="请输入授课老师"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="选修" prop="cuChoose">
-        <el-input
-          v-model="queryParams.cuChoose"
-          placeholder="请输入选修"
+          v-model="queryParams.claXueyuan"
+          placeholder="请输入所属学院"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -55,7 +31,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['courseselect:select:add']"
+          v-hasPermi="['class:inf:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,7 +42,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['courseselect:select:edit']"
+          v-hasPermi="['class:inf:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -77,7 +53,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['courseselect:select:remove']"
+          v-hasPermi="['class:inf:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -87,24 +63,17 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['courseselect:select:export']"
+          v-hasPermi="['class:inf:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="selectList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="infList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="课程号" align="center" prop="cuId" />
-      <el-table-column label="课程名" align="center" prop="cuName" />
-      <el-table-column label="授课教室" align="center" prop="cuRoom" />
-      <el-table-column label="上课时间" align="center" prop="cuTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.cuTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="授课老师" align="center" prop="cuTeacher" />
-      <el-table-column label="选修" align="center" prop="cuChoose" />
+      <el-table-column label="班级编号" align="center" prop="claId" />
+      <el-table-column label="专业名称" align="center" prop="claName" />
+      <el-table-column label="所属学院" align="center" prop="claXueyuan" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -112,14 +81,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['courseselect:select:edit']"
+            v-hasPermi="['class:inf:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['courseselect:select:remove']"
+            v-hasPermi="['class:inf:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -133,28 +102,14 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改选修课程对话框 -->
+    <!-- 添加或修改班级信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="课程名" prop="cuName">
-          <el-input v-model="form.cuName" placeholder="请输入课程名" />
+        <el-form-item label="专业名称" prop="claName">
+          <el-input v-model="form.claName" placeholder="请输入专业名称" />
         </el-form-item>
-        <el-form-item label="授课教室" prop="cuRoom">
-          <el-input v-model="form.cuRoom" placeholder="请输入授课教室" />
-        </el-form-item>
-        <el-form-item label="上课时间" prop="cuTime">
-          <el-date-picker clearable
-            v-model="form.cuTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择上课时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="授课老师" prop="cuTeacher">
-          <el-input v-model="form.cuTeacher" placeholder="请输入授课老师" />
-        </el-form-item>
-        <el-form-item label="选修" prop="cuChoose">
-          <el-input v-model="form.cuChoose" placeholder="请输入选修" />
+        <el-form-item label="所属学院" prop="claXueyuan">
+          <el-input v-model="form.claXueyuan" placeholder="请输入所属学院" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -166,10 +121,10 @@
 </template>
 
 <script>
-import { listSelect, getSelect, delSelect, addSelect, updateSelect } from "@/api/courseselect/select";
+import { listInf, getInf, delInf, addInf, updateInf } from "@/api/class/inf";
 
 export default {
-  name: "Select",
+  name: "Inf",
   data() {
     return {
       // 遮罩层
@@ -184,8 +139,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 选修课程表格数据
-      selectList: [],
+      // 班级信息表格数据
+      infList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -194,11 +149,8 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        cuName: null,
-        cuRoom: null,
-        cuTime: null,
-        cuTeacher: null,
-        cuChoose: null
+        claName: null,
+        claXueyuan: null
       },
       // 表单参数
       form: {},
@@ -211,11 +163,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询选修课程列表 */
+    /** 查询班级信息列表 */
     getList() {
       this.loading = true;
-      listSelect(this.queryParams).then(response => {
-        this.selectList = response.rows;
+      listInf(this.queryParams).then(response => {
+        this.infList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -228,12 +180,9 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        cuId: null,
-        cuName: null,
-        cuRoom: null,
-        cuTime: null,
-        cuTeacher: null,
-        cuChoose: null
+        claId: null,
+        claName: null,
+        claXueyuan: null
       };
       this.resetForm("form");
     },
@@ -249,7 +198,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.cuId)
+      this.ids = selection.map(item => item.claId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -257,30 +206,30 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加选修课程";
+      this.title = "添加班级信息";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const cuId = row.cuId || this.ids
-      getSelect(cuId).then(response => {
+      const claId = row.claId || this.ids
+      getInf(claId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改选修课程";
+        this.title = "修改班级信息";
       });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.cuId != null) {
-            updateSelect(this.form).then(response => {
+          if (this.form.claId != null) {
+            updateInf(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addSelect(this.form).then(response => {
+            addInf(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -291,9 +240,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const cuIds = row.cuId || this.ids;
-      this.$modal.confirm('是否确认删除选修课程编号为"' + cuIds + '"的数据项？').then(function() {
-        return delSelect(cuIds);
+      const claIds = row.claId || this.ids;
+      this.$modal.confirm('是否确认删除班级信息编号为"' + claIds + '"的数据项？').then(function() {
+        return delInf(claIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -301,9 +250,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('courseselect/select/export', {
+      this.download('class/inf/export', {
         ...this.queryParams
-      }, `select_${new Date().getTime()}.xlsx`)
+      }, `inf_${new Date().getTime()}.xlsx`)
     }
   }
 };

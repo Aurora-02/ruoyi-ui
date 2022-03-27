@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '教研信息管理系统',
+      title: '教务信息管理系统',
       logo: logoImg
     }
   }

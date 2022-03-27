@@ -1,44 +1,44 @@
 import request from '@/utils/request'
 
-// 查询学生信息列表
+// 查询老师信息列表
 export function listInf(query) {
   return request({
-    url: '/student/inf/list',
+    url: '/teacher/inf/list',
     method: 'get',
     params: query
   })
 }
 
-// 查询学生信息详细
-export function getInf(stId) {
+// 查询老师信息详细
+export function getInf(teaId) {
   return request({
-    url: '/student/inf/' + stId,
+    url: '/teacher/inf/' + teaId,
     method: 'get'
   })
 }
 
-// 新增学生信息
+// 新增老师信息
 export function addInf(data) {
   return request({
-    url: '/student/inf',
+    url: '/teacher/inf',
     method: 'post',
     data: data
   })
 }
 
-// 修改学生信息
+// 修改老师信息
 export function updateInf(data) {
   return request({
-    url: '/student/inf',
+    url: '/teacher/inf',
     method: 'put',
     data: data
   })
 }
 
-// 删除学生信息
-export function delInf(stId) {
+// 删除老师信息
+export function delInf(teaId) {
   return request({
-    url: '/student/inf/' + stId,
+    url: '/teacher/inf/' + teaId,
     method: 'delete'
   })
 }

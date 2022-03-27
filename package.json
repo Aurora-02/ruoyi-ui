@@ -1,7 +1,7 @@
 {
   "name": "ruoyi",
   "version": "3.8.1",
-  "description": "教研信息管理系统",
+  "description": "教务信息管理系统",
   "author": "若依",
   "license": "MIT",
   "scripts": {

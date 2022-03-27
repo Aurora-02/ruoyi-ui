@@ -17,16 +17,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="是否批准" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择是否批准" clearable>
-          <el-option
-            v-for="dict in dict.type.sys_yes_no"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="批复" prop="teaPass">
         <el-input
           v-model="queryParams.teaPass"
@@ -49,7 +39,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['func:leave:add']"
+          v-hasPermi="['LEAVE:leave:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -60,7 +50,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['func:leave:edit']"
+          v-hasPermi="['LEAVE:leave:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -71,7 +61,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['func:leave:remove']"
+          v-hasPermi="['LEAVE:leave:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -81,7 +71,7 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['func:leave:export']"
+          v-hasPermi="['LEAVE:leave:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -92,11 +82,7 @@
       <el-table-column label="学号" align="center" prop="stuId" />
       <el-table-column label="学生姓名" align="center" prop="stuName" />
       <el-table-column label="请假事由" align="center" prop="stuWhy" />
-      <el-table-column label="是否批准" align="center" prop="status">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_yes_no" :value="scope.row.status"/>
-        </template>
-      </el-table-column>
+      <el-table-column label="是否批准" align="center" prop="status" />
       <el-table-column label="批复" align="center" prop="teaPass" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -105,14 +91,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['func:leave:edit']"
+            v-hasPermi="['LEAVE:leave:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['func:leave:remove']"
+            v-hasPermi="['LEAVE:leave:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -129,23 +115,11 @@
     <!-- 添加或修改请假对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="序号" prop="id">
-          <el-input v-model="form.id" placeholder="请输入序号" />
-        </el-form-item>
         <el-form-item label="学生姓名" prop="stuName">
           <el-input v-model="form.stuName" placeholder="请输入学生姓名" />
         </el-form-item>
         <el-form-item label="请假事由" prop="stuWhy">
           <el-input v-model="form.stuWhy" placeholder="请输入请假事由" />
-        </el-form-item>
-        <el-form-item label="是否批准">
-          <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in dict.type.sys_yes_no"
-              :key="dict.value"
-:label="dict.value"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item label="批复" prop="teaPass">
           <el-input v-model="form.teaPass" placeholder="请输入批复" />
@@ -160,11 +134,10 @@
 </template>
 
 <script>
-import { listLeave, getLeave, delLeave, addLeave, updateLeave } from "@/api/func/leave";
+import { listLeave, getLeave, delLeave, addLeave, updateLeave } from "@/api/LEAVE/leave";
 
 export default {
   name: "Leave",
-  dicts: ['sys_yes_no'],
   data() {
     return {
       // 遮罩层
@@ -198,9 +171,6 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        id: [
-          { required: true, message: "序号不能为空", trigger: "blur" }
-        ],
       }
     };
   },
@@ -225,7 +195,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        id: null,
         stuId: null,
         stuName: null,
         stuWhy: null,
@@ -298,7 +267,7 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('func/leave/export', {
+      this.download('LEAVE/leave/export', {
         ...this.queryParams
       }, `leave_${new Date().getTime()}.xlsx`)
     }
